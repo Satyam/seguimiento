@@ -51,6 +51,7 @@ var app = {
       var latEl = $('#lat');
       var lngEl = $('#lng');
       var bipEl = $('#bip');
+      var msgEl = $('#msg')
       function onSuccess(position) {
         try {
           bipEl.html('-/|\\'[(i++) % 4]);
@@ -69,7 +70,9 @@ var app = {
           			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
           	}));
             marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
-
+            map.on('click', function (ev) {
+              msgEl.html(msgEl.html() + '<pre>' + JSON.stringify(ev.latlng, null, 2) + '</pre>');
+            })
           }
         }
         catch(err) {
@@ -78,9 +81,10 @@ var app = {
 
       };
       function onError(error) {
-        $('#msg').html(
+        msgEl.html(msgEl.html() + '<pre>' +
           'code: ' + error.code + '\n' +
-          'message: ' + error.message + '\n');
+          'message: ' + error.message + '</pre>'
+        );
       }
       navigator.geolocation.watchPosition(onSuccess, onError, {
         timeout: 30000
