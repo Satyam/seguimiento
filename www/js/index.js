@@ -86,9 +86,14 @@ var app = {
           'message: ' + error.message + '</pre>'
         );
       }
-      navigator.geolocation.watchPosition(onSuccess, onError, {
-        timeout: 30000
-      });
+
+      function getPosition() {
+        navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+          timeout: 30000
+        });
+      }
+      getPosition();
+      window.setInterval(getPosition, 10000);
     });
   }
 };
