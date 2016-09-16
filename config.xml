@@ -22,6 +22,8 @@
     <plugin name="cordova-plugin-inappbrowser" source="npm" spec="~1.3.0" />
     <plugin name="cordova-plugin-network-information" source="npm" spec="~1.2.0" />
     <plugin name="cordova-plugin-whitelist" source="npm" spec="~1.2.2" />
+    <plugin name="cordova-plugin-file" source="npm" spec="~4.3.0" />
+    <plugin name="cordova-plugin-file-transfer" source="npm" spec="~1.5.1" />
     <icon src="icon.png" />
     <platform name="android">
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
