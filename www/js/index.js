@@ -52,24 +52,30 @@ var app = {
       var lngEl = document.getElementById('lng');
       var bipEl = document.getElementById('bip');
       function onSuccess(position) {
-        bip.innerHTML = '-/|\\'[(i++) % 4];
-        latEl.innerHTML = position.coords.latitude;
-        lngEl.innerHTML = position.coords.longitude;
+        try {
+          bip.innerHTML = '-/|\\'[(i++) % 4];
+          latEl.innerHTML = position.coords.latitude;
+          lngEl.innerHTML = position.coords.longitude;
 
-        if (map) {
-          marker.setLatLng([position.coords.latitude, position.coords.longitude]);
-        } else {
-          map = L.map('map', {
-        		center: [position.coords.latitude, position.coords.longitude],
-        		zoom: 15
-        	});
-          L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-        			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-        	}).addTo(map);
-          marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
+          if (map) {
+            marker.setLatLng([position.coords.latitude, position.coords.longitude]);
+          } else {
+            map = L.map('map', {
+          		center: [position.coords.latitude, position.coords.longitude],
+          		zoom: 15
+          	});
+            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+          			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+          	}).addTo(map);
+            marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
 
+          }
         }
+        catch(err) {
+          onError(err);
+        }
+
       };
       function onError(error) {
         document.getElementById('msg').innerHTML = (
