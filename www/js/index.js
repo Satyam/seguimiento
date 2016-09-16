@@ -48,14 +48,14 @@ var app = {
       var map = null;
       var marker = null;
       var i = 0;
-      var latEl = document.getElementById('lat');
-      var lngEl = document.getElementById('lng');
-      var bipEl = document.getElementById('bip');
+      var latEl = $('#lat');
+      var lngEl = $('#lng');
+      var bipEl = $('#bip');
       function onSuccess(position) {
         try {
-          bip.innerHTML = '-/|\\'[(i++) % 4];
-          latEl.innerHTML = position.coords.latitude;
-          lngEl.innerHTML = position.coords.longitude;
+          bipEl.html('-/|\\'[(i++) % 4]);
+          latEl.html(position.coords.latitude);
+          lngEl.html(position.coords.longitude);
 
           if (map) {
             marker.setLatLng([position.coords.latitude, position.coords.longitude]);
@@ -64,10 +64,10 @@ var app = {
           		center: [position.coords.latitude, position.coords.longitude],
           		zoom: 15
           	});
-            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            map.addLayer(L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           		attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
           			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-          	}).addTo(map);
+          	}));
             marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
 
           }
@@ -78,15 +78,13 @@ var app = {
 
       };
       function onError(error) {
-        document.getElementById('msg').innerHTML = (
+        $('#msg').html(
           'code: ' + error.code + '\n' +
           'message: ' + error.message + '\n');
       }
-      window.setInterval(function () {
-        navigator.geolocation.getCurrentPosition(onSuccess, onError, {
-          timeout: 30000
-        });
-      },10000)
+      navigator.geolocation.watchPosition(onSuccess, onError, {
+        timeout: 30000
+      });
     });
   }
 };
