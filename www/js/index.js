@@ -44,7 +44,7 @@ var app = {
         });
       });
 
-      var ZOOM = 15;
+      var ZOOM = 16;
       var map = null;
       var marker = null;
       var tiles = null;
@@ -138,19 +138,22 @@ var app = {
       forceOfflineEl.on('click', function(ev) {
         if (forceOfflineEl.hasClass('btn-warning')) {
           tiles.goOnline();
+          forceOfflineEl.html('force offline');
         } else {
           tiles.goOffline();
+          forceOfflineEl.html('offline (forced)');
         }
         forceOfflineEl.toggleClass('btn-warning');
       });
 
       function onlineStatus() {
-        onlineStatusEl.addClass(
-          navigator.connection.type !== Connection.NONE
-          ? 'status-on-line'
-          : 'status-off-line'
-        );
-      }
+        if (navigator.connection.type === Connection.NONE) {
+          onlineStatusEl.removeClass('status-on-line').html('off line');
+        } else {
+          onlineStatusEl.addClass('status-on-line').html('on line');
+        }
+      };
+
       document.addEventListener("offline", function() {
         tiles.goOffline();
         onlineStatus();
@@ -162,10 +165,18 @@ var app = {
         onlineStatus();
       }, false);
 
+      onlineStatus();
       function getPosition() {
-        navigator.geolocation.getCurrentPosition(newPosition, onError, {
-          timeout: 30000
-        });
+        navigator.geolocation.getCurrentPosition(
+          newPosition,
+          function (err) {
+            onError(err);
+            window.setTimeout(getPosition, 10000);
+          },
+          {
+            timeout: 30000
+          }
+        );
       }
       getPosition();
     });

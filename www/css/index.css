@@ -121,6 +121,6 @@ h1 {
   margin: 1px;
 }
 
-.status-on-line {
+#onlineStatus.status-on-line {
   background-color: green;
 }
