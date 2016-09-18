@@ -121,7 +121,6 @@ var app = {
               msgEl.html(msgEl.html() + '<pre>' + JSON.stringify(ev.latlng, null, 2) + '</pre>');
             });
           }
-          window.setTimeout(getPosition, 10000);
         } catch (err) {
           onError(err);
         }
@@ -166,19 +165,15 @@ var app = {
       }, false);
 
       onlineStatus();
-      function getPosition() {
-        navigator.geolocation.getCurrentPosition(
-          newPosition,
-          function (err) {
-            onError(err);
-            window.setTimeout(getPosition, 10000);
-          },
-          {
-            timeout: 30000
-          }
-        );
-      }
-      getPosition();
+
+      navigator.geolocation.watchPosition(
+        newPosition,
+        onError,
+        {
+          enableHighAccuracy: true,
+          timeout: 30000
+        }
+      );
     });
   }
 };
