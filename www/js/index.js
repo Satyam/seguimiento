@@ -53,67 +53,69 @@ var app = {
       var lngEl = $('#lng');
       var bipEl = $('#bip');
       var msgEl = $('#msg');
-      var onlineEl = $('#online');
+      var onlineStatusEl = $('#onlineStatus');
+      var forceOfflineEl = $('#forceOffline');
 
-      function onSuccess(position) {
+      function createMap(lat, lng, zoom) {
+        map = L.map('map', {
+          center: [lat, lng],
+          zoom: zoom
+        });
+        tiles = L.tileLayerCordova('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+            '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+          folder: 'LTileLayerCordovaExample',
+          name: 'example',
+          debug: true
+        }, function() {
+          //----------------------------------------------------------------
+          // From: https://github.com/gregallensworth/L.TileLayer.Cordova
+          // calculate a tile pyramid starting at a lat/lon and going down to a stated range of zoom levels
+          var tile_list = tiles.calculateXYZListFromBounds(map.getBounds(), zoom - 1, zoom + 1);
+          tiles.downloadXYZList(
+            // 1st param: a list of XYZ objects indicating tiles to download
+            tile_list,
+            // 2nd param: overwrite existing tiles on disk?
+            // if no then a tile already on disk will be kept, which can be a big time saver
+            true,
+            // 3rd param: progress callback
+            // receives the number of tiles downloaded and the number of tiles total
+            // caller can calculate a percentage, update progress bar, etc.
+            // function(done, total) {
+              // var percent = Math.round(100 * done / total);
+              // console.log(done + " / " + total + " = " + percent + "%");
+            //},
+            null,
+            // 4th param: complete callback
+            // no parameters are given, but we know we're done!
+            function() {
+              // for this demo, on success we use another L.TileLayer.Cordova feature and show the disk usage!
+              tiles.getDiskUsage(function(filecount, bytes) {
+                var kilobytes = Math.round(bytes / 1024);
+                msgEl.html(msgEl.html() +
+                  "Done\n" + filecount + " files\n" + kilobytes + " kB"
+                );
+              });
+            },
+            // 5th param: error callback
+            // parameter is the error message string
+            onError
+          );
+        });
+        map.addLayer(tiles);
+      }
+
+      function newPosition(position) {
         try {
           var lat = position.coords.latitude, lng = position.coords.longitude;
           bipEl.html('-/|\\' [(i++) % 4]);
           latEl.html(lat);
           lngEl.html(lng);
-          onlineEl
 
           if (map) {
             marker.setLatLng([lat, lng]);
           } else {
-            map = L.map('map', {
-              center: [lat, lng],
-              zoom: ZOOM
-            });
-            tiles = L.tileLayerCordova('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-                '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
-              folder: 'LTileLayerCordovaExample',
-              name: 'example',
-              debug: true
-            }, function() {
-              //----------------------------------------------------------------
-              // From: https://github.com/gregallensworth/L.TileLayer.Cordova
-              // calculate a tile pyramid starting at a lat/lon and going down to a stated range of zoom levels
-              var tile_list = tiles.calculateXYZListFromBounds(map.getBounds(), ZOOM - 1, ZOOM + 1);
-              tiles.downloadXYZList(
-                // 1st param: a list of XYZ objects indicating tiles to download
-                tile_list,
-                // 2nd param: overwrite existing tiles on disk?
-                // if no then a tile already on disk will be kept, which can be a big time saver
-                true,
-                // 3rd param: progress callback
-                // receives the number of tiles downloaded and the number of tiles total
-                // caller can calculate a percentage, update progress bar, etc.
-                function(done, total) {
-                  // var percent = Math.round(100 * done / total);
-                  // console.log(done + " / " + total + " = " + percent + "%");
-                },
-                // 4th param: complete callback
-                // no parameters are given, but we know we're done!
-                function() {
-                  // for this demo, on success we use another L.TileLayer.Cordova feature and show the disk usage!
-                  tiles.getDiskUsage(function(filecount, bytes) {
-                    var kilobytes = Math.round(bytes / 1024);
-                    msgEl.html(msgEl.html() +
-                      "Done" + "<br/>" + filecount + " files" + "<br/>" + kilobytes + " kB"
-                    );
-                  });
-                },
-                // 5th param: error callback
-                // parameter is the error message string
-                function(error) {
-                  alert("Failed\nError code: " + error.code);
-                }
-              );
-            });
-            map.addLayer(tiles);
-            onlineEl.prop('checked', tiles.isOnline());
+            createMap(lat, lng, ZOOM);
             marker = L.marker([lat, lng]).addTo(map);
             map.on('click', function(ev) {
               msgEl.html(msgEl.html() + '<pre>' + JSON.stringify(ev.latlng, null, 2) + '</pre>');
@@ -133,16 +135,35 @@ var app = {
         );
       }
 
-      onlineEl.on('click', function(ev) {
-        if (onlineEl.prop('checked')) {
+      forceOfflineEl.on('click', function(ev) {
+        if (forceOfflineEl.hasClass('btn-warning')) {
           tiles.goOnline();
         } else {
           tiles.goOffline();
         }
+        forceOfflineEl.toggleClass('btn-warning');
       });
 
+      function onlineStatus() {
+        onlineStatusEl.addClass(
+          navigator.connection.type !== Connection.NONE
+          ? 'status-on-line'
+          : 'status-off-line'
+        );
+      }
+      document.addEventListener("offline", function() {
+        tiles.goOffline();
+        onlineStatus();
+      }, false);
+      document.addEventListener("online", function() {
+        if (!forceOfflineEl.hasclass('btn-warning')) {
+          tiles.goOnline();
+        }
+        onlineStatus();
+      }, false);
+
       function getPosition() {
-        navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+        navigator.geolocation.getCurrentPosition(newPosition, onError, {
           timeout: 30000
         });
       }

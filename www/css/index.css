@@ -112,3 +112,15 @@ h1 {
     animation:fade 3000ms infinite;
     -webkit-animation:fade 3000ms infinite;
 }
+
+#onlineStatus {
+  width: 100%;
+  height: 2em;
+  background-color: red;
+  text-align: center;
+  margin: 1px;
+}
+
+.status-on-line {
+  background-color: green;
+}
