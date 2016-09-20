@@ -1,21 +1,30 @@
 {
-  "name": "phonegap-template-hello-world",
+  "name": "phonegap-ar-com-satyam-seguimiento",
   "version": "4.0.2",
-  "description": "> A Hello World template built with PhoneGap",
+  "description": "Muestra la posición en OpenStreetMap.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/phonegap/phonegap-app-hello-world.git"
+    "url": "https://github.com/Satyam/seguimiento"
   },
-  "author": "PhoneGap Team",
-  "license": "Apache-2.0.0",
+  "scripts": {
+    "lint": "eslint . || exit 0",
+    "start": "phonegap serve"
+  },
+  "author": "Daniel Barreiro",
+  "license": "MIT",
   "keywords": [
     "ecosystem:phonegap",
     "ecosystem:cordova",
-    "cordova:template",
-    "phonegap:template"
+    "OpenStreetMap"
   ],
   "bugs": {
-    "url": "https://github.com/phonegap/phonegap-app-hello-world/issues"
+    "url": "https://github.com/Satyam/seguimiento/issues"
   },
-  "homepage": "https://github.com/phonegap/phonegap-app-hello-world"
+  "homepage": "https://github.com/Satyam/seguimiento",
+  "devDependencies": {
+    "eslint": "^3.5.0",
+    "eslint-plugin-import": "^1.15.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-react": "^6.2.2"
+  }
 }

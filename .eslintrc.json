@@ -1,0 +1,16 @@
+{
+  "extends": "eslint:recommended",
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "$": true,
+    "L": true,
+    "Connection": true,
+    "Promise": true
+  },
+  "rules": {
+    "no-console": 0,
+    "semi": 2
+  }
+}
