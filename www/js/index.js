@@ -1,179 +1,184 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-var app = {
-  // Application Constructor
-  initialize: function() {
-    this.bindEvents();
-  },
-  // Bind Event Listeners
-  //
-  // Bind any events that are required on startup. Common events are:
-  // 'load', 'deviceready', 'offline', and 'online'.
-  bindEvents: function() {
-    document.addEventListener('deviceready', this.onDeviceReady, false);
-  },
-  // deviceready Event Handler
-  //
-  // The scope of 'this' is the event. In order to call the 'receivedEvent'
-  // function, we must explicitly call 'app.receivedEvent(...);'
-  onDeviceReady: function() {
-    $(function() {
+$(function() {
+  document.addEventListener('deviceready', onDeviceReady, false);
 
-      $('#map').css({
+  var ZOOM = 16;
+  var map = null;
+  var marker = null;
+  var tiles = null;
+  var i = 0;
+  var $map = $('#map');
+  var $lat = $('#lat');
+  var $lng = $('#lng');
+  var $bip = $('#bip');
+  var $msg = $('#msg');
+  var $onlineStatus = $('#onlineStatus');
+  var $forceOffline = $('#forceOffline');
+
+  var existing = [];
+  var required = [];
+
+  function onDeviceReady() {
+
+    $map.css({
+      'height': ($(window.document).height()) + 'px'
+    });
+    $(window).resize(function() {
+      $map.css({
         'height': ($(window.document).height()) + 'px'
       });
-      $(window).resize(function() {
-        $('#map').css({
-          'height': ($(window.document).height()) + 'px'
-        });
-      });
-
-      var ZOOM = 16;
-      var map = null;
-      var marker = null;
-      var tiles = null;
-      var i = 0;
-      var latEl = $('#lat');
-      var lngEl = $('#lng');
-      var bipEl = $('#bip');
-      var msgEl = $('#msg');
-      var onlineStatusEl = $('#onlineStatus');
-      var forceOfflineEl = $('#forceOffline');
-
-      function createMap(lat, lng, zoom) {
-        map = L.map('map', {
-          center: [lat, lng],
-          zoom: zoom
-        });
-        tiles = L.tileLayerCordova('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-            '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
-          folder: 'LTileLayerCordovaExample',
-          name: 'example',
-          debug: true
-        }, function() {
-          //----------------------------------------------------------------
-          // From: https://github.com/gregallensworth/L.TileLayer.Cordova
-          // calculate a tile pyramid starting at a lat/lon and going down to a stated range of zoom levels
-          var tile_list = tiles.calculateXYZListFromBounds(map.getBounds(), zoom - 1, zoom + 1);
-          tiles.downloadXYZList(
-            // 1st param: a list of XYZ objects indicating tiles to download
-            tile_list,
-            // 2nd param: overwrite existing tiles on disk?
-            // if no then a tile already on disk will be kept, which can be a big time saver
-            true,
-            // 3rd param: progress callback
-            // receives the number of tiles downloaded and the number of tiles total
-            // caller can calculate a percentage, update progress bar, etc.
-            // function(done, total) {
-              // var percent = Math.round(100 * done / total);
-              // console.log(done + " / " + total + " = " + percent + "%");
-            //},
-            null,
-            // 4th param: complete callback
-            // no parameters are given, but we know we're done!
-            function() {
-              // for this demo, on success we use another L.TileLayer.Cordova feature and show the disk usage!
-              tiles.getDiskUsage(function(filecount, bytes) {
-                var kilobytes = Math.round(bytes / 1024);
-                msgEl.html(msgEl.html() +
-                  "Done\n" + filecount + " files\n" + kilobytes + " kB"
-                );
-              });
-            },
-            // 5th param: error callback
-            // parameter is the error message string
-            onError
-          );
-        });
-        map.addLayer(tiles);
-      }
-
-      function newPosition(position) {
-        try {
-          var lat = position.coords.latitude, lng = position.coords.longitude;
-          bipEl.html('-/|\\' [(i++) % 4]);
-          latEl.html(lat);
-          lngEl.html(lng);
-
-          if (map) {
-            marker.setLatLng([lat, lng]);
-          } else {
-            createMap(lat, lng, ZOOM);
-            marker = L.marker([lat, lng]).addTo(map);
-            map.on('click', function(ev) {
-              msgEl.html(msgEl.html() + '<pre>' + JSON.stringify(ev.latlng, null, 2) + '</pre>');
-            });
-          }
-        } catch (err) {
-          onError(err);
-        }
-
-      };
-
-      function onError(error) {
-        msgEl.html(msgEl.html() + '<pre>' +
-          'code: ' + error.code + '\n' +
-          'message: ' + error.message + '</pre>'
-        );
-      }
-
-      forceOfflineEl.on('click', function(ev) {
-        if (forceOfflineEl.hasClass('btn-warning')) {
-          tiles.goOnline();
-          forceOfflineEl.html('force offline');
-        } else {
-          tiles.goOffline();
-          forceOfflineEl.html('offline (forced)');
-        }
-        forceOfflineEl.toggleClass('btn-warning');
-      });
-
-      function onlineStatus() {
-        if (navigator.connection.type === Connection.NONE) {
-          onlineStatusEl.removeClass('status-on-line').html('off line');
-        } else {
-          onlineStatusEl.addClass('status-on-line').html('on line');
-        }
-      };
-
-      document.addEventListener("offline", function() {
+    });
+    $forceOffline.on('click', function() {
+      if ($forceOffline.hasClass('btn-warning')) {
+        tiles.goOnline();
+        $forceOffline.html('force offline');
+      } else {
         tiles.goOffline();
-        onlineStatus();
-      }, false);
-      document.addEventListener("online", function() {
-        if (!forceOfflineEl.hasclass('btn-warning')) {
-          tiles.goOnline();
-        }
-        onlineStatus();
-      }, false);
+        $forceOffline.html('offline (forced)');
+      }
+      $forceOffline.toggleClass('btn-warning');
+    });
 
+    $('#clearCache').click(function () {
+      tiles.emptyCache(function (success, failed) {
+        alert('cleared '  + success + ' tiles, failed: ' + failed);
+      });
+    });
+    document.addEventListener("offline", function() {
+      tiles.goOffline();
       onlineStatus();
+    }, false);
 
-      navigator.geolocation.watchPosition(
-        newPosition,
-        onError,
-        {
-          enableHighAccuracy: true,
-          timeout: 30000
+    document.addEventListener("online", function() {
+      if (!$forceOffline.hasclass('btn-warning')) {
+        tiles.goOnline();
+        if (required.length) {
+          download(function() {
+            tiles.getDiskUsage(function(filecount, bytes) {
+              var kilobytes = Math.round(bytes / 1024);
+              appendMsg("Done\n" + filecount + " files\n" + kilobytes + " kB");
+            });
+          });
         }
-      );
+      }
+      onlineStatus();
+    }, false);
+
+    onlineStatus();
+
+    navigator.geolocation.watchPosition(
+      newPosition,
+      onError, {
+        enableHighAccuracy: true,
+        timeout: 30000
+      }
+    );
+  }
+
+  function onlineStatus() {
+    if (isOnline) {
+      $onlineStatus.addClass('status-on-line').html('on line');
+    } else {
+      $onlineStatus.removeClass('status-on-line').html('off line');
+    }
+  }
+
+  function isOnline() {
+    return navigator.connection.type !== Connection.NONE;
+  }
+
+  var downloading = false;
+
+  function download(callback) {
+    if (downloading) return;
+    downloading = true;
+    tiles.downloadXYZList(
+      required,
+      false,
+      null,
+      function() {
+        existing = existing.concat(required);
+        required = [];
+        downloading = false;
+        if (callback) callback();
+      },
+      onError
+    );
+  }
+
+  function createMap(lat, lng, zoom) {
+    map = L.map('map', {
+      center: [lat, lng],
+      zoom: zoom
+    });
+
+    tiles = L.tileLayerCordova(
+      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+        folder: 'LTileLayerCordovaExample',
+        name: 'example',
+        debug: true
+      },
+      function() {
+        required = tiles.calculateXYZListFromBounds(map.getBounds(), zoom - 1, zoom + 1);
+        if (required.length && isOnline()) {
+          download(function() {
+            tiles.getDiskUsage(function(filecount, bytes) {
+              var kilobytes = Math.round(bytes / 1024);
+              appendMsg("Done\n" + filecount + " files\n" + kilobytes + " kB");
+            });
+          });
+        }
+      }
+    );
+    map.addLayer(tiles);
+    map.on('moveend', function (ev) {
+      console.log('moveend', ev);
+
+    });
+    map.on('zoomend', function (ev) {
+      console.log('zoomend', ev);
+    });
+    tiles.on('tileloadstart', function (ev) {
+      console.log('tileloadstart', ev);
+    });
+    tiles.on('tileload', function (ev) {
+      console.log('tileload', ev);
+    });
+    tiles.on('tileerror', function (ev) {
+      console.log('tileerror', ev);
     });
   }
-};
+
+
+  function newPosition(position) {
+    try {
+      var lat = position.coords.latitude,
+        lng = position.coords.longitude;
+      $bip.html('-/|\\' [(i++) % 4]);
+      $lat.html(Math.round(lat * 1000) / 1000);
+      $lng.html(Math.round(lng * 1000) / 1000);
+
+      if (map) {
+        marker.setLatLng([lat, lng]);
+      } else {
+        createMap(lat, lng, ZOOM);
+        marker = L.marker([lat, lng]).addTo(map);
+        map.on('click', function(ev) {
+          appendMsg(JSON.stringify(ev.latlng, null, 2));
+        });
+      }
+    } catch (err) {
+      onError(err);
+    }
+
+  }
+
+  function appendMsg(text) {
+    $msg.html($msg.html() + text + '\n');
+  }
+
+  function onError(error) {
+    appendMsg('code: ' + error.code + '\nmessage: ' + error.message);
+  }
+});
