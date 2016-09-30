@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "eslint . || exit 0",
     "start": "phonegap serve",
-    "build": "webpack www/js/index.js www/bundle.js"
+    "build": "webpack www/js/index.js www/bundle.js",
+    "watch": "webpack --watch www/js/index.js www/bundle.js &"
   },
   "author": "Daniel Barreiro",
   "license": "MIT",
