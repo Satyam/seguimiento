@@ -22,8 +22,6 @@
     <plugin name="cordova-plugin-whitelist" source="npm" spec="~1.2.2" />
     <plugin name="cordova-plugin-file" source="npm" spec="~4.3.0" />
     <plugin name="cordova-plugin-file-transfer" source="npm" spec="~1.5.1" />
-    <plugin name="cordova-sqlite-storage"
-      spec="https://github.com/litehelpers/Cordova-sqlite-storage.git#1.0.6" />
     <icon src="icon.png" />
     <platform name="android">
         <icon qualifier="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
@@ -54,4 +52,6 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <engine name="android" spec="~5.1.1" />
+    <plugin name="cordova-sqlite-evcore-extbuild-free"
+      spec="https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free.git#0.8.1" />
 </widget>
