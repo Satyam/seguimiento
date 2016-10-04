@@ -7,7 +7,7 @@ module.exports = L.Control.SlideMenu.extend({
       var m = menu.reduce(
         function (lis, item, index) {
           return lis
-            + '<li role="presentation" class="active" data-index="'
+            + '<li role="presentation" data-index="'
             + index
             + '"><a href="#">'
             + item[0]
@@ -24,9 +24,12 @@ module.exports = L.Control.SlideMenu.extend({
     },
     _onClick: function (ev) {
       L.DomEvent.stopPropagation(ev);
-      var index = $(ev.currentTarget).data('index');
+      if (this._previousMenu) this._previousMenu.removeClass('active');
+      var listItem = $(ev.currentTarget);
+      this._previousMenu = listItem;
+      listItem.addClass('active');
       this.close();
-      return this._menuObj[index][1](ev);
+      this._menuObj[listItem.data('index')][1](ev);
     },
     open: function () {
       this._animate(this._menu, this._startPosition, 0, true);
