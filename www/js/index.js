@@ -12,11 +12,6 @@ $(function() {
   document.addEventListener('deviceready', onDeviceReady, false);
 
   function onDeviceReady() {
-
-    window.sqlitePlugin.echoTest(function() {
-      appendMsg('ECHO test OK');
-    });
-
     MAP.init();
 
     $('#clearCache').click(function () {
