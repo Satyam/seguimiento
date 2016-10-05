@@ -14,6 +14,9 @@ $(function() {
   function onDeviceReady() {
     MAP.init();
 
+    window.sqlitePlugin.echoTest(function() {
+      appendMsg('ECHO test OK');
+    });
     $('#clearCache').click(function () {
       FS.getDiskUsage().then(function(result) {
         appendMsg(JSON.stringify(result, null, 2));
