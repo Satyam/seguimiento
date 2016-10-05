@@ -60,6 +60,22 @@
 	  function onDeviceReady() {
 	    MAP.init();
 
+	    window.sqlitePlugin.echoTest(
+	      function() {
+	        appendMsg('ECHO test OK');
+	      },
+	      function (error) {
+	        appendMsg('Echo test ' + error);
+	      }
+	    );
+	    window.sqlitePlugin.selfTest(
+	      function() {
+	        appendMsg('SELF test OK');
+	      },
+	      function (error) {
+	        appendMsg('Self test ' + error);
+	      }
+	    );
 	    $('#clearCache').click(function () {
 	      FS.getDiskUsage().then(function(result) {
 	        appendMsg(JSON.stringify(result, null, 2));
