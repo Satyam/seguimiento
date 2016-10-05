@@ -51,5 +51,5 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
-    <engine name="android" spec="~5.1.1" />
+    <engine name="android" spec="~4.2.2" />
 </widget>
